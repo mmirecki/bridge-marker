@@ -32,7 +32,7 @@ var (
 )
 
 const (
-	// Expose available bridges as resources in format ovs-cni.network.kubevirt.io/[bridge name]
+	// Expose available bridges as resources in format bridge.network.kubevirt.io/[bridge name]
 	resourceNamespace = "bridge.network.kubevirt.io"
 	// Kubernetes API does not support infinite resources, assume that 1000 connections is enough
 	resourceDefaultValue = "1000"
