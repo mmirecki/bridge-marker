@@ -1,0 +1,83 @@
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: bridge-marker
+  namespace: kube-system
+  labels:
+    tier: node
+    app: bridge-marker
+spec:
+  selector:
+    matchLabels:
+      tier: node
+      app: bridge-marker
+  template:
+    metadata:
+      labels:
+        tier: node
+        app: bridge-marker
+    spec:
+      serviceAccountName: bridge-marker
+      hostNetwork: true
+      nodeSelector:
+        beta.kubernetes.io/arch: amd64
+      tolerations:
+      - key: node-role.kubernetes.io/master
+        operator: Exists
+        effect: NoSchedule
+       containers:
+       - name: bridge-marker
+        image: registry:5000/bridge-marker:latest
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        args:
+          - -node-name
+          - $(NODE_NAME)
+        volumeMounts:
+          - name: bridge-sbin
+            mountPath: /host/sbin       
+        env:
+          - name: NODE_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+      volumes:
+        - name: bridge-sbin
+          hostPath:
+            path: /sbin/  
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: bridge-marker-cr
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  - nodes/status
+  verbs:
+  - get
+  - update
+  - patch
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: bridge-marker-crb
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: bridge-marker-cr
+subjects:
+- kind: ServiceAccount
+  name: bridge-marker
+  namespace: kube-system
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: bridge-marker
+  namespace: kube-system
