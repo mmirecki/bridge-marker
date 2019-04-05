@@ -57,8 +57,6 @@ func init() {
 }
 
 func getAvailableResources() (map[string]bool, error) {
-	glog.Warning("!!! MMM Running command")
-
 	command := "/host/sbin/ip -d -o link | grep bridge_id"
 
 	//outputRaw, err := exec.Command(
@@ -71,11 +69,7 @@ func getAvailableResources() (map[string]bool, error) {
 		"-c", command,
 	).CombinedOutput()
 
-	glog.Warningf("!!! MMM command outputRaw: %+v", outputRaw)
-
 	if err != nil {
-		glog.Warningf("!!! MMM command err: %+v", err)
-
 		return nil, fmt.Errorf("failed to list OVS bridges: %v", string(outputRaw))
 	}
 
@@ -83,15 +77,11 @@ func getAvailableResources() (map[string]bool, error) {
 
 	if len(outputRaw) > 0 {
 		for _, bridgeLine := range strings.Split(strings.TrimSpace(string(outputRaw)), "\n") {
-			glog.Warningf("!!! MMM output LINE: %+v", bridgeLine)
-
 			bridgeName := strings.TrimSpace(strings.Split(bridgeLine, ":")[1])
-			glog.Warningf("!!! MMM output bridgeName: %+v", bridgeName)
 
 			availableResources[bridgeName] = true
 		}
 	}
-	glog.Warningf("!!! MMM command availableResources: %+v", availableResources)
 
 	return availableResources, nil
 }
@@ -117,12 +107,10 @@ func getReportedResources(nodeName string) (map[string]bool, error) {
 }
 
 func Update(nodeName string) error {
-	glog.Warning("!!! MMM    UPDATE!")
 	availableResources, err := getAvailableResources()
 	if err != nil {
 		return fmt.Errorf("failed to list available resources: %v", err)
 	}
-	glog.Warningf("!!! MMM    availableResources: %+v", availableResources)
 
 	reportedResources, err := getReportedResources(nodeName)
 	if err != nil {
