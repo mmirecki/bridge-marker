@@ -28,17 +28,12 @@ func main() {
 
 	flag.Parse()
 
-	glog.Warning("!!! MMM marker2")
-	glog.Warning("!!! MMM 2")
-
 	if *nodeName == "" {
 		glog.Fatal("node-name must be set")
 	}
 
 	for {
-		glog.Warning("!!! MMM lunching update")
 		err := marker.Update(*nodeName)
-		glog.Warning("!!! MMM update lunched")
 		if err != nil {
 			glog.Errorf("Update failed: %v", err)
 		}
